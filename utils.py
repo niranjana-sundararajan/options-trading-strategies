@@ -41,9 +41,3 @@ def plot_delta_error(stock_prices,errors, option_type: str):
     plt.legend()
     plt.xlabel('$S_0$')
     plt.ylabel('FDM Error')
-
-def plot_gamma_error(stock_prices,errors):
-    plt.plot(stock_prices, errors)
-    plt.title('Gamma by changing $S_0$')
-    plt.xlabel('$S_0$')
-    plt.ylabel('Gamma')

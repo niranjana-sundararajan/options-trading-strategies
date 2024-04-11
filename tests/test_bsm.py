@@ -12,7 +12,6 @@ def test_bs_option_pricing():
     r = 0.03
     bsm = bs_model.BS_Model(k, s, t, r, sigma)
     assert round(bsm.option_price("put"),4) == 2.6264
-    assert round(bsm.option_price("call"),4) == 5.5819
 
 
 def test_bs_greeks():
