@@ -41,3 +41,4 @@ def plot_delta_error(stock_prices,errors, option_type: str):
     plt.legend()
     plt.xlabel('$S_0$')
     plt.ylabel('FDM Error')
+

@@ -5,7 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def test_bs_effect_of_spot():
+def bs_effect_of_spot():
     k = 100
     t = 0.1
     sigma = 0.1
@@ -22,7 +22,7 @@ def test_bs_effect_of_spot():
     plt.legend()
     
 
-def test_bs_effect_of_volatility():
+def bs_effect_of_volatility():
     k = 100
     t = 0.1
     sigma = 0.1
@@ -38,7 +38,7 @@ def test_bs_effect_of_volatility():
     plt.ylabel(' Value')
     plt.legend()
 
-def test_bs_effect_of_price():
+def bs_effect_of_price():
     k = 100
     t = 0.1
     sigma = 0.1
@@ -54,7 +54,7 @@ def test_bs_effect_of_price():
     plt.ylabel(' Value')
     plt.legend()
 
-def test_bs_effect_of_price():
+def bs_effect_of_price():
     k = 100
     t = 0.1
     sigma = 0.1
@@ -69,3 +69,20 @@ def test_bs_effect_of_price():
     plt.xlabel('$S_0$')
     plt.ylabel(' Value')
     plt.legend()
+
+def bs_vega_with_time():
+    stock_prices = np.arange(60,140,0.1)
+    s = 100
+    Ts = [1,0.75,0.5,0.25]
+    k = 100
+    t = 0.1
+    sigma = 0.1
+    r = 0.03
+    bsm = bs_model.BS_Model(k, s, t, r, sigma)
+    for t in Ts:
+        plt.plot(bsm.vega(stock_prices, k, t, r, sigma), label=f'T = {t}')
+
+    plt.legend()
+    plt.xlabel('$S_0$')
+    plt.ylabel('Vega')
+    plt.title('Vega Decrease with Time')
