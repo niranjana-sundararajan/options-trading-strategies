@@ -22,20 +22,20 @@ jobs:
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - name: Checkout virtual machine to run action
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
-          python-version: '>3.8' # Version range or exact version of a Python version to use, using SemVer's version range syntax
+          python-version: '3.x' # Version range or exact version of a Python version to use, using SemVer's version range syntax
           architecture: 'x64' # optional x64 or x86. Defaults to x64 if not specified
 
       # # Install dependencies for pytest    
       - name: Install dependencies
         run: |
-          pip install --upgrade pip # make sure accessing from latest PyPi
+          pip install --upgrade pip 
           pip install -e . # install module
-          pip install -r requirements.txt # make sure all packages installed
+          pip install -r requirements.txt 
       
       # Run pytest
       - name: Test with pytest
