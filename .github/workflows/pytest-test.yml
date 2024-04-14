@@ -31,12 +31,11 @@ jobs:
           architecture: 'x64' # optional x64 or x86. Defaults to x64 if not specified
 
       # # Install dependencies for pytest    
-      # - name: Install dependencies
-      #   run: |
-      #     pip install --upgrade pip # make sure accessing from latest PyPi
-      #     pip install -e . # install module
-      #     pip install -r requirements.txt # make sure all packages installed
-      #     python download_data.py
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip # make sure accessing from latest PyPi
+          pip install -e . # install module
+          pip install -r requirements.txt # make sure all packages installed
       
       # Run pytest
       - name: Test with pytest
