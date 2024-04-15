@@ -4,6 +4,7 @@ import numpy as np
 
 settlement_values = np.linspace(0, 200, 300)
 
+
 def test_bs_model():
     s = 100
     k = 100
