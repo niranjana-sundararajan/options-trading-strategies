@@ -7,19 +7,19 @@ class BS_Model:
 
     def __init__(
         self,
-        strike: float,
         spot: float,
         time: float,
         rate: float,
         volatility: float,
-        dividend=None,
+        strike: float,
+        # dividend=None,
     ) -> None:
         self.strike = strike
         self.spot = spot
         self.time = time  # in years
         self.rate = rate  # 0 < rate < 1
         self.volatility = volatility  # 0 < volatility < 1
-        self.dividend = dividend  # 0 < volatility < 1
+        # self.dividend = dividend  # 0 < volatility < 1
 
     @property
     def params(self):
