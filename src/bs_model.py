@@ -92,85 +92,82 @@ class BS_Model:
             return -self.strike * self.time * np.exp(-self.rate * self.time) * N(-d2)
         else:
             raise Exception("Sorry, incorrect option type, please try again!")
+    
+    def volga(self, option_type : str):
+        volga = self.vega(option_type = option_type) / self.volatility * self.__calc_d1() * self.__calc_d2()
+        return volga
+    
+    def vanna(self, option_type : str):
+        vanna = -self.vega(option_type = option_type) / (self.spot * self.volatility * self.time** .5) * self.__calc_d2()
+        return vanna
 
     # -------------------------------------------------------------------------------------------------
     # Greeks : FDM Calcs
     # -------------------------------------------------------------------------------------------------
 
     def __fdm_params(self, ds: float, dv: float, dt: float, dr: float):
-        bsm = BS_Model(self.strike, self.spot, self.time, self.rate, self.volatility)
+        
+        bsm = BS_Model(strike = self.strike, spot = self.spot, time = self.time, rate = self.rate, volatility = self.volatility)
 
         bsm_plus_ds = BS_Model(
-            self.strike + ds, self.spot, self.time, self.rate, self.volatility
+            strike =self.strike + ds, spot = self.spot, time =self.time, rate = self.rate, volatility =self.volatility
         )
 
         bsm_minus_ds = BS_Model(
-            self.strike - ds, self.spot, self.time, self.rate, self.volatility
+            strike =self.strike - ds, spot =self.spot, time =self.time, rate = self.rate, volatility =self.volatility
         )
 
         bsm_plus_2ds = BS_Model(
-            self.strike + 2 * ds, self.spot, self.time, self.rate, self.volatility
+            strike =self.strike + 2 * ds, spot =self.spot, time =self.time, rate = self.rate, volatility =self.volatility
         )
 
         bsm_minus_2ds = BS_Model(
-            self.strike - 2 * ds, self.spot, self.time, self.rate, self.volatility
+            strike =self.strike - 2 * ds, spot =self.spot, time =self.time, rate = self.rate, volatility =self.volatility
         )
 
         bsm_minus_vol = BS_Model(
-            self.strike, self.spot, self.time, self.rate, self.volatility - dv
+            strike =self.strike, spot =self.spot, time =self.time, rate = self.rate, volatility =self.volatility - dv
         )
         bsm_plus_vol = BS_Model(
-            self.strike, self.spot, self.time, self.rate, self.volatility + dv
+            strike =self.strike, spot =self.spot, time =self.time, rate = self.rate, volatility =self.volatility + dv
         )
 
         bsm_minus_time = BS_Model(
-            self.strike, self.spot, self.time - dt, self.rate, self.volatility
+            strike =self.strike, spot =self.spot, time =self.time - dt, rate = self.rate, volatility =self.volatility
         )
         bsm_plus_time = BS_Model(
-            self.strike, self.spot, self.time + dt, self.rate, self.volatility
+            strike =self.strike, spot =self.spot, time =self.time + dt, rate = self.rate, volatility =self.volatility
         )
 
         bsm_minus_rate = BS_Model(
-            self.strike, self.spot, self.time, self.rate - dr, self.volatility
+            strike =self.strike, spot =self.spot, time =self.time, rate = self.rate - dr, volatility =self.volatility
         )
         bsm_plus_rate = BS_Model(
-            self.strike, self.spot, self.time, self.rate + dr, self.volatility
+            strike =self.strike, spot =self.spot, time =self.time, rate = self.rate + dr, volatility =self.volatility
         )
+        return bsm,bsm_plus_ds,bsm_minus_ds,bsm_plus_2ds,bsm_minus_2ds,bsm_minus_vol, bsm_plus_vol,bsm_minus_time,bsm_plus_time, bsm_minus_rate,bsm_plus_rate        
 
-        return (
-            bsm,
-            bsm_plus_ds,
-            bsm_minus_ds,
-            bsm_plus_2ds,
-            bsm_minus_2ds,
-            bsm_minus_vol,
-            bsm_plus_vol,
-            bsm_minus_time,
-            bsm_plus_time,
-            bsm_minus_rate,
-            bsm_plus_rate,
-        )
-
-    def delta(self, option_type: str, ds=1e-5, method="central"):
+    def delta(self, option_type: str, ds=0.00001, method="central"):
 
         bsm_at_s, bsm_plus_ds, bsm_minus_ds, _, _, _, _, _, _, _, _ = self.__fdm_params(
-            ds, dv=0, dt=0, dr=0
+            ds = ds, dv=0, dt=0, dr=0
         )
 
+        # print(bsm_plus_ds.option_price(option_type=option_type), bsm_minus_ds.option_price(option_type=option_type))
         if method.lower() == "central" or method.lower() == "ctrl":
             delta_fdm = (
-                bsm_plus_ds.option_price(option_type)
-                - bsm_minus_ds.option_price(option_type)
+                bsm_plus_ds.option_price(option_type=option_type)
+                - bsm_minus_ds.option_price(option_type=option_type)
             ) / (2 * ds)
         elif method.lower() == "forward" or method.lower() == "fwd":
             delta_fdm = (
-                bsm_plus_ds.option_price(option_type)
-                - bsm_at_s.option_price(option_type)
+                bsm_plus_ds.option_price(option_type=option_type)
+                - bsm_at_s.option_price(option_type=option_type)
             ) / (ds)
         elif method.lower() == "backward" or method.lower() == "bwd":
             delta_fdm = (
-                bsm_at_s.option_price(option_type)
-                - bsm_minus_ds.option_price(option_type)
+                bsm_at_s.option_price(option_type=option_type)
+                - bsm_minus_ds.option_price(option_type=option_type)
             ) / (ds)
         return delta_fdm
 
@@ -188,25 +185,25 @@ class BS_Model:
             _,
             _,
             _,
-        ) = self.__fdm_params(ds, dv=0, dt=0, dr=0)
+        ) = self.__fdm_params(ds = ds, dv=0, dt=0, dr=0)
 
         if method.lower() == "central" or method.lower() == "ctrl":
             gamma_fdm = (
-                bsm_plus_ds.option_price(option_type)
-                - 2 * bsm_at_s.option_price(option_type)
-                + bsm_minus_ds.option_price(option_type)
+                bsm_plus_ds.option_price(option_type=option_type)
+                - 2 * bsm_at_s.option_price(option_type=option_type)
+                + bsm_minus_ds.option_price(option_type=option_type)
             ) / (ds**2)
         elif method.lower() == "forward" or method.lower() == "fwd":
             gamma_fdm = (
-                bsm_plus_2ds.option_price(option_type)
-                - 2 * bsm_plus_ds.option_price(option_type)
-                + bsm_at_s.option_price(option_type)
+                bsm_plus_2ds.option_price(option_type=option_type)
+                - 2 * bsm_plus_ds.option_price(option_type=option_type)
+                + bsm_at_s.option_price(option_type=option_type)
             ) / (ds**2)
         elif method.lower() == "backward" or method.lower() == "bwd":
             gamma_fdm = (
-                bsm_at_s.option_price(option_type)
-                - 2 * bsm_minus_ds.option_price(option_type)
-                + bsm_minus_2ds.option_price(option_type)
+                bsm_at_s.option_price(option_type=option_type)
+                - 2 * bsm_minus_ds.option_price(option_type=option_type)
+                + bsm_minus_2ds.option_price(option_type=option_type)
             ) / (ds**2)
         return gamma_fdm
 
@@ -217,16 +214,16 @@ class BS_Model:
 
         if method.lower() == "central" or method.lower() == "ctrl":
             vega_fdm = (
-                bsm_plus_vol.option_price(option_type)
-                - bsm_minus_vol.option_price(option_type)
+                bsm_plus_vol.option_price(option_type=option_type)
+                - bsm_minus_vol.option_price(option_type=option_type)
             ) / (2 * dv)
         elif method.lower() == "forward" or method.lower() == "fwd":
             vega_fdm = (
-                bsm_plus_vol.option_price(option_type) - bsm.option_price(option_type)
+                bsm_plus_vol.option_price(option_type=option_type) - bsm.option_price(option_type=option_type)
             ) / (dv)
         elif method.lower() == "backward" or method.lower() == "bwd":
             vega_fdm = (
-                bsm.option_price(option_type) - bsm_minus_vol.option_price(option_type)
+                bsm.option_price(option_type=option_type) - bsm_minus_vol.option_price(option_type=option_type)
             ) / (dv)
         return vega_fdm
 
@@ -235,18 +232,19 @@ class BS_Model:
             ds=0, dv=0, dt=dt, dr=0
         )
 
+        print()
         if method.lower() == "central" or method.lower() == "ctrl":
             theta_fdm = (
-                bsm_plus_time.option_price(option_type)
-                - bsm_minus_time.option_price(option_type)
+                bsm_plus_time.option_price(option_type=option_type)
+                - bsm_minus_time.option_price(option_type=option_type)
             ) / (2 * dt)
         elif method.lower() == "forward" or method.lower() == "fwd":
             theta_fdm = (
-                bsm_plus_time.option_price(option_type) - bsm.option_price(option_type)
+                bsm_plus_time.option_price(option_type=option_type) - bsm.option_price(option_type=option_type)
             ) / (dt)
         elif method.lower() == "backward" or method.lower() == "bwd":
             theta_fdm = (
-                bsm.option_price(option_type) - bsm_minus_time.option_price(option_type)
+                bsm.option_price(option_type=option_type) - bsm_minus_time.option_price(option_type=option_type)
             ) / (dt)
         return theta_fdm
 
@@ -257,16 +255,16 @@ class BS_Model:
 
         if method.lower() == "central" or method.lower() == "ctrl":
             rho_fdm = (
-                bsm_plus_rate.option_price(option_type)
-                - bsm_minus_rate.option_price(option_type)
+                bsm_plus_rate.option_price(option_type=option_type)
+                - bsm_minus_rate.option_price(option_type=option_type)
             ) / (2 * dr)
         elif method.lower() == "forward" or method.lower() == "fwd":
             rho_fdm = (
-                bsm_plus_rate.option_price(option_type) - bsm.option_price(option_type)
+                bsm_plus_rate.option_price(option_type=option_type) - bsm.option_price(option_type=option_type)
             ) / (dr)
         elif method.lower() == "backward" or method.lower() == "bwd":
             rho_fdm = (
-                bsm.option_price(option_type) - bsm_minus_rate.option_price(option_type)
+                bsm.option_price(option_type=option_type) - bsm_minus_rate.option_price(option_type=option_type)
             ) / (dr)
         return rho_fdm
 
